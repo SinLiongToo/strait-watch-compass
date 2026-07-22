@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>台海動態羅盤 Strait Watch Compass</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root{
     --navy:#0F1B2D;
@@ -222,44 +224,50 @@
   .del-btn{background:transparent;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;}
   .del-btn:hover{color:#c0392b;}
 
-  /* --- Tactical Map Styling --- */
-  .map-region {
-    fill: var(--amber);
-    fill-opacity: 0;
-    stroke: var(--amber);
-    stroke-width: 1.5;
-    stroke-opacity: 0;
-    transition: fill-opacity 0.2s, stroke-opacity 0.2s;
+  /* --- Leaflet Tactical Map Styling --- */
+  #realTacticalMap {
+    width: 100%;
+    height: 380px;
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .leaflet-container {
+    font-family: inherit;
+    background: var(--panel-2) !important;
+  }
+  .leaflet-badge {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    white-space: nowrap;
     cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
   }
-  .map-region:hover, .map-region.hover {
-    fill-opacity: 0.12;
-    stroke-opacity: 0.5;
+  .leaflet-badge:hover, .leaflet-badge.active {
+    background: var(--amber);
+    color: #ffffff !important;
+    border-color: var(--amber);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(245,166,35,0.4);
   }
-  .map-region.active {
-    fill-opacity: 0.22;
-    stroke-opacity: 0.8;
-  }
-  .map-region-dot {
-    transition: r 0.2s, fill 0.2s;
-  }
-  .map-region-dot:hover, .map-region-dot.hover {
-    r: 6;
-    fill: var(--amber);
-  }
-  .map-region-dot.active {
-    r: 7;
-    fill: var(--amber);
-  }
-  .map-badge rect {
-    transition: fill 0.2s, stroke 0.2s;
-  }
-  .map-badge:hover rect, .map-badge.hover rect {
-    stroke: var(--amber);
-    fill: var(--panel-2);
-  }
-  .map-badge text {
-    pointer-events: none;
+  .leaflet-custom-tooltip {
+    background: var(--panel) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text) !important;
+    box-shadow: var(--shadow) !important;
+    border-radius: 8px !important;
+    font-size: 12px !important;
+    padding: 8px 12px !important;
+    font-family: inherit;
   }
 
   @media (max-width:860px){
@@ -495,105 +503,17 @@
         <div style="font-weight:700;font-size:13px;margin-bottom:12px;color:var(--text-dim);">位置與航線戰術分析 Location & Route Analysis</div>
         <div class="grid2" style="grid-template-columns: 1.2fr 1fr; align-items: stretch; gap: 20px;">
           <!-- Map Card -->
-          <div style="background:var(--panel-2); border-radius:10px; padding:20px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; min-height:360px;">
-            <svg id="tacticalMap" viewBox="0 0 300 320" style="width:100%; max-width:290px; height:auto; overflow:visible;">
-              <defs>
-                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="currentColor" stroke-opacity="0.06" stroke-width="1"/>
-                </pattern>
-                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-              </defs>
-              <!-- Grid background -->
-              <rect width="300" height="320" fill="url(#grid)" style="color:var(--text); opacity:0.5;" />
-              <!-- Radar circles -->
-              <circle cx="175" cy="180" r="130" stroke="currentColor" stroke-opacity="0.06" stroke-dasharray="2 4" fill="none" style="color:var(--text);" />
-              <circle cx="175" cy="180" r="80" stroke="currentColor" stroke-opacity="0.06" stroke-dasharray="2 4" fill="none" style="color:var(--text);" />
-              
-              <!-- China Coastline -->
-              <path d="M 0,0 L 70,0 C 75,30 80,60 75,90 C 70,120 60,150 50,170 C 40,190 45,210 35,230 C 25,250 30,280 20,320 L 0,320 Z" fill="var(--bg)" stroke="var(--border)" stroke-width="1.5" />
-              <text x="20" y="50" fill="var(--text-dim)" font-size="10" font-weight="600" opacity="0.6">中國大陸</text>
-              
-              <!-- Taiwan Strait Waters (Clickable Background) -->
-              <rect x="0" y="0" width="300" height="320" class="map-region" data-region="waters" style="fill:var(--sage); fill-opacity:0; stroke:none; cursor:pointer;" />
-              
-              <!-- ADIZ Boundary -->
-              <path d="M 90,270 L 90,40 L 230,40 L 230,120 L 250,120 L 250,270 Z" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5 3" fill="none" opacity="0.75" />
-              <text x="95" y="52" fill="var(--amber)" font-size="8" font-weight="700" opacity="0.8">台北飛航情報區 / ADIZ</text>
-
-              <!-- Interactive Airspace Polygons -->
-              <!-- SW ADIZ -->
-              <polygon class="map-region" data-region="sw_adiz" points="90,160 140,190 168,225 173,235 175,270 90,270" />
-              <!-- North Airspace -->
-              <polygon class="map-region" data-region="north_air" points="90,40 230,40 230,120 185,120 150,135 110,80 90,80" />
-              <!-- SE Airspace -->
-              <polygon class="map-region" data-region="se_adiz" points="173,235 185,225 198,185 250,185 250,270 175,270" />
-              <!-- East Airspace -->
-              <polygon class="map-region" data-region="east_air" points="198,185 250,185 250,120 230,120 185,120 198,185" />
-              <!-- Median Line Zone -->
-              <polygon class="map-region" data-region="median_line" points="100,75 125,75 160,210 135,210" />
-              
-              <!-- Strait Median Line dashed stroke -->
-              <line x1="110" y1="80" x2="148" y2="210" stroke="var(--text-dim)" stroke-width="1.5" stroke-dasharray="6 4" pointer-events="none" />
-              <text x="98" y="145" fill="var(--text-dim)" font-size="8" transform="rotate(72 95 145)" opacity="0.7" pointer-events="none">海峽中線 Median Line</text>
-
-              <!-- Taiwan Main Island -->
-              <path d="M 175,120 C 195,130 205,155 198,185 C 190,210 182,230 173,235 C 168,230 162,220 160,205 C 152,185 156,160 165,145 C 170,135 170,125 175,120 Z" fill="var(--panel)" stroke="var(--text)" stroke-width="1.5" filter="url(#glow)" pointer-events="none" />
-              <text x="175" y="175" fill="var(--text)" font-size="10" font-weight="700" text-anchor="middle" pointer-events="none">臺灣</text>
-              
-              <!-- Outlying Island Dots -->
-              <!-- Penghu -->
-              <circle cx="138" cy="182" r="3" fill="var(--text)" />
-              <text x="133" y="193" fill="var(--text-dim)" font-size="8" pointer-events="none">澎湖</text>
-              <!-- Kinmen -->
-              <circle cx="80" cy="185" r="4" fill="var(--text)" class="map-region-dot" data-region="outlying_islands" style="cursor:pointer;" />
-              <text x="70" y="198" fill="var(--text-dim)" font-size="8" pointer-events="none">金門</text>
-              <!-- Matsu -->
-              <circle cx="110" cy="80" r="4" fill="var(--text)" class="map-region-dot" data-region="outlying_islands" style="cursor:pointer;" />
-              <text x="105" y="70" fill="var(--text-dim)" font-size="8" pointer-events="none">馬祖</text>
-              
-              <!-- Badges showing activity counts -->
-              <!-- SW ADIZ Badge -->
-              <g class="map-badge" data-region="sw_adiz" style="cursor:pointer;">
-                <rect x="100" y="235" width="36" height="15" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1" />
-                <text x="118" y="246" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle" id="badge-sw_adiz">0</text>
-              </g>
-              <!-- North Airspace Badge -->
-              <g class="map-badge" data-region="north_air" style="cursor:pointer;">
-                <rect x="135" y="55" width="36" height="15" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1" />
-                <text x="153" y="66" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle" id="badge-north_air">0</text>
-              </g>
-              <!-- East Airspace Badge -->
-              <g class="map-badge" data-region="east_air" style="cursor:pointer;">
-                <rect x="220" y="135" width="36" height="15" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1" />
-                <text x="238" y="146" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle" id="badge-east_air">0</text>
-              </g>
-              <!-- SE Airspace Badge -->
-              <g class="map-badge" data-region="se_adiz" style="cursor:pointer;">
-                <rect x="205" y="235" width="36" height="15" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1" />
-                <text x="223" y="246" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle" id="badge-se_adiz">0</text>
-              </g>
-              <!-- Median Line Badge -->
-              <g class="map-badge" data-region="median_line" style="cursor:pointer;">
-                <rect x="110" y="115" width="36" height="15" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1" />
-                <text x="128" y="126" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle" id="badge-median_line">0</text>
-              </g>
-              <!-- Outlying Islands Badge -->
-              <g class="map-badge" data-region="outlying_islands" style="cursor:pointer;">
-                <rect x="75" y="145" width="36" height="15" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1" />
-                <text x="93" y="156" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle" id="badge-outlying_islands">0</text>
-              </g>
-              <!-- Surrounding Waters Badge -->
-              <g class="map-badge" data-region="waters" style="cursor:pointer;">
-                <rect x="15" y="150" width="36" height="15" rx="4" fill="var(--panel)" stroke="var(--border)" stroke-width="1" />
-                <text x="33" y="161" fill="var(--text)" font-size="9" font-weight="700" text-anchor="middle" id="badge-waters">0</text>
-              </g>
-            </svg>
-            
-            <!-- Tooltip element -->
-            <div id="mapTooltip" style="position:absolute; display:none; background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:6px 10px; font-size:12px; pointer-events:none; box-shadow:var(--shadow); z-index:10; white-space:nowrap;"></div>
+          <div style="background:var(--panel-2); border-radius:10px; padding:16px; display:flex; flex-direction:column; position:relative; min-height:380px;">
+            <div style="position:relative; width:100%; height:380px; border-radius:8px; overflow:hidden; border:1px solid var(--border);">
+              <div id="realTacticalMap"></div>
+              <!-- Map Control Toolbar -->
+              <div style="position:absolute; top:10px; right:10px; z-index:1000; display:flex; gap:4px; background:var(--panel); padding:4px; border-radius:8px; border:1px solid var(--border); box-shadow:var(--shadow);">
+                <button id="mapStyleSatellite" class="icon-btn" style="padding:4px 8px; font-size:11px;">📡 衛星圖</button>
+                <button id="mapStyleDark" class="icon-btn" style="padding:4px 8px; font-size:11px;">🎯 戰術暗色</button>
+                <button id="mapStyleLight" class="icon-btn" style="padding:4px 8px; font-size:11px;">🗺️ 標準</button>
+                <button id="mapRecenter" class="icon-btn" title="重設視角" style="padding:4px 8px; font-size:11px;">🎯</button>
+              </div>
+            </div>
           </div>
           
           <!-- Stats Card -->
@@ -756,7 +676,7 @@
   }
   function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
-  // ---------- map constants and helpers ----------
+  // ---------- Leaflet Map constants and helpers ----------
   const ZONE_META = {
     sw_adiz: { label: "西南空域", labelEn: "SW Airspace", query: "西南" },
     north_air: { label: "北部空域", labelEn: "North Airspace", query: "北部" },
@@ -766,6 +686,82 @@
     outlying_islands: { label: "離島與沿岸", labelEn: "Outlying Islands", query: "金門" },
     waters: { label: "周邊海域", labelEn: "Surrounding Waters", query: "海域" }
   };
+
+  const TILE_URLS = {
+    satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
+  };
+
+  const TILE_ATTRS = {
+    satellite: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+    dark: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    light: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  };
+
+  const REGION_GEO = {
+    sw_adiz: {
+      latlngs: [[22.8, 117.5], [22.8, 120.0], [21.8, 120.8], [21.0, 121.2], [21.0, 117.5]],
+      badgePos: [21.8, 119.2],
+      color: "#F5A623"
+    },
+    north_air: {
+      latlngs: [[27.0, 120.0], [27.0, 123.0], [25.0, 123.0], [25.0, 121.5], [25.6, 120.2]],
+      badgePos: [26.2, 121.6],
+      color: "#4A90E2"
+    },
+    median_line: {
+      latlngs: [[26.8, 120.6], [26.8, 121.6], [23.2, 119.5], [23.2, 118.5]],
+      lineCoords: [[26.8, 121.2], [25.8, 120.6], [24.5, 119.6], [23.2, 118.8]],
+      badgePos: [24.5, 119.8],
+      color: "#E74C3C"
+    },
+    east_air: {
+      latlngs: [[25.0, 121.8], [25.0, 123.0], [22.5, 123.0], [22.5, 121.4]],
+      badgePos: [23.8, 122.3],
+      color: "#9B59B6"
+    },
+    se_adiz: {
+      latlngs: [[22.5, 121.0], [22.5, 123.0], [21.0, 123.0], [21.0, 121.2]],
+      badgePos: [21.7, 122.1],
+      color: "#1ABC9C"
+    },
+    outlying_islands: {
+      islands: [
+        { name: "金門", pos: [24.44, 118.32] },
+        { name: "馬祖", pos: [26.15, 119.95] },
+        { name: "澎湖", pos: [23.57, 119.58] },
+        { name: "東引", pos: [26.37, 120.49] }
+      ],
+      badgePos: [24.5, 118.1],
+      color: "#F39C12"
+    },
+    waters: {
+      latlngs: [[27.0, 117.5], [27.0, 124.0], [20.5, 124.0], [20.5, 117.5]],
+      badgePos: [23.5, 117.8],
+      color: "#7FB5A0"
+    }
+  };
+
+  let leafletMap = null;
+  let leafletTileLayer = null;
+  let zonePolygons = {};
+  let zoneBadgeMarkers = {};
+  let selectedZone = null;
+
+  function setTileLayer(type) {
+    if (!leafletMap) return;
+    if (leafletTileLayer) leafletMap.removeLayer(leafletTileLayer);
+    leafletTileLayer = L.tileLayer(TILE_URLS[type], {
+      attribution: TILE_ATTRS[type],
+      maxZoom: 13,
+      minZoom: 5
+    }).addTo(leafletMap);
+
+    document.querySelectorAll("#mapStyleSatellite, #mapStyleDark, #mapStyleLight").forEach(btn => btn.classList.remove("active"));
+    const activeBtn = document.getElementById(type === 'satellite' ? 'mapStyleSatellite' : (type === 'dark' ? 'mapStyleDark' : 'mapStyleLight'));
+    if (activeBtn) activeBtn.classList.add("active");
+  }
 
   function getLocationZone(r) {
     const loc = (r.location || "").toLowerCase();
@@ -788,53 +784,131 @@
     return "waters";
   }
 
-  let selectedZone = null;
-
   function initMapInteractions() {
-    const mapRegions = document.querySelectorAll(".map-region, .map-region-dot, .map-badge");
-    const tooltip = document.getElementById("mapTooltip");
+    const mapContainer = document.getElementById("realTacticalMap");
+    if (!mapContainer || leafletMap) return;
 
-    mapRegions.forEach(elem => {
-      const zone = elem.dataset.region;
-      if (!zone) return;
+    // Initialize Leaflet map
+    leafletMap = L.map('realTacticalMap', {
+      center: [23.7, 120.6],
+      zoom: 7,
+      zoomControl: true,
+      attributionControl: false
+    });
 
-      elem.addEventListener("mouseenter", (e) => {
-        // Highlight region
-        const correspondingRegions = document.querySelectorAll(`[data-region="${zone}"]`);
-        correspondingRegions.forEach(r => r.classList.add("hover"));
+    // Initial tile layer (match current theme)
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    setTileLayer(isDark ? 'dark' : 'satellite');
 
-        // Show Tooltip
-        const stats = window.currentZoneStats;
-        if (stats && tooltip) {
+    // Controls listeners
+    document.getElementById("mapStyleSatellite")?.addEventListener("click", () => setTileLayer('satellite'));
+    document.getElementById("mapStyleDark")?.addEventListener("click", () => setTileLayer('dark'));
+    document.getElementById("mapStyleLight")?.addEventListener("click", () => setTileLayer('light'));
+    document.getElementById("mapRecenter")?.addEventListener("click", () => leafletMap.setView([23.7, 120.6], 7));
+
+    // Outer ADIZ Envelope Boundary
+    L.polyline([[27.0, 117.5], [27.0, 123.0], [21.0, 123.0], [21.0, 117.5], [27.0, 117.5]], {
+      color: '#F5A623',
+      weight: 1.5,
+      dashArray: '6, 6',
+      opacity: 0.75
+    }).addTo(leafletMap);
+
+    // Median Line
+    L.polyline(REGION_GEO.median_line.lineCoords, {
+      color: '#FF5252',
+      weight: 2,
+      dashArray: '8, 5',
+      opacity: 0.85
+    }).addTo(leafletMap);
+
+    // Build zone polygons & markers
+    Object.keys(REGION_GEO).forEach(zone => {
+      const geo = REGION_GEO[zone];
+      let layerGroup = L.layerGroup();
+
+      if (geo.latlngs) {
+        const poly = L.polygon(geo.latlngs, {
+          color: geo.color,
+          weight: 1.5,
+          fillColor: geo.color,
+          fillOpacity: 0.12,
+          className: `leaflet-polygon-${zone}`
+        });
+
+        poly.on("mouseover", () => {
+          if (selectedZone !== zone) {
+            poly.setStyle({ fillOpacity: 0.35, weight: 2.5 });
+          }
+          const stats = window.currentZoneStats;
           const name = ZONE_META[zone].label;
-          const count = stats.zoneCounts[zone] || 0;
-          const events = stats.zoneEvents[zone] || 0;
-          tooltip.innerHTML = `<strong>${name}</strong><br>總架/艘次: ${count}<br>偵獲次數: ${events}`;
-          tooltip.style.display = "block";
-        }
-      });
+          const count = stats ? (stats.zoneCounts[zone] || 0) : 0;
+          const events = stats ? (stats.zoneEvents[zone] || 0) : 0;
+          poly.bindTooltip(`<strong>${name}</strong><br>架/艘次: ${count}<br>偵獲筆數: ${events}`, {
+            className: 'leaflet-custom-tooltip',
+            direction: 'top',
+            sticky: true
+          }).openTooltip();
+        });
 
-      elem.addEventListener("mousemove", (e) => {
-        if (!tooltip) return;
-        const mapContainer = document.getElementById("tacticalMap").parentNode;
-        const containerRect = mapContainer.getBoundingClientRect();
-        tooltip.style.left = (e.clientX - containerRect.left + 15) + "px";
-        tooltip.style.top = (e.clientY - containerRect.top + 10) + "px";
-      });
+        poly.on("mouseout", () => {
+          if (selectedZone !== zone) {
+            poly.setStyle({ fillOpacity: 0.12, weight: 1.5 });
+          }
+        });
 
-      elem.addEventListener("mouseleave", () => {
-        const correspondingRegions = document.querySelectorAll(`[data-region="${zone}"]`);
-        correspondingRegions.forEach(r => r.classList.remove("hover"));
-        if (tooltip) tooltip.style.display = "none";
-      });
+        poly.on("click", () => {
+          if (selectedZone === zone) {
+            resetRegionDetailCard(true);
+          } else {
+            selectZone(zone, true);
+          }
+        });
 
-      elem.addEventListener("click", () => {
-        if (selectedZone === zone) {
-          resetRegionDetailCard(true);
-        } else {
-          selectZone(zone, true);
-        }
-      });
+        layerGroup.addLayer(poly);
+      }
+
+      if (geo.islands) {
+        geo.islands.forEach(isl => {
+          const circle = L.circleMarker(isl.pos, {
+            radius: 6,
+            color: geo.color,
+            fillColor: geo.color,
+            fillOpacity: 0.8,
+            weight: 1.5
+          });
+          circle.bindTooltip(`<strong>${isl.name}</strong>`, { className: 'leaflet-custom-tooltip', direction: 'top' });
+          circle.on("click", () => selectZone("outlying_islands", true));
+          layerGroup.addLayer(circle);
+        });
+      }
+
+      layerGroup.addTo(leafletMap);
+      zonePolygons[zone] = layerGroup;
+
+      // Badge marker
+      if (geo.badgePos) {
+        const badgeIcon = L.divIcon({
+          className: '',
+          html: `<div class="leaflet-badge" id="badge-${zone}" data-region="${zone}">${ZONE_META[zone].label} <span id="badge-num-${zone}">0</span></div>`,
+          iconSize: [90, 24],
+          iconAnchor: [45, 12]
+        });
+        const badgeMarker = L.marker(geo.badgePos, { icon: badgeIcon }).addTo(leafletMap);
+        
+        setTimeout(() => {
+          const badgeEl = document.getElementById(`badge-${zone}`);
+          if (badgeEl) {
+            badgeEl.addEventListener("click", (e) => {
+              e.stopPropagation();
+              if (selectedZone === zone) resetRegionDetailCard(true);
+              else selectZone(zone, true);
+            });
+          }
+        }, 100);
+
+        zoneBadgeMarkers[zone] = badgeMarker;
+      }
     });
 
     const redirectBtn = document.getElementById("viewRegionDetailsBtn");
@@ -842,27 +916,19 @@
       redirectBtn.addEventListener("click", () => {
         if (!selectedZone) return;
         const meta = ZONE_META[selectedZone];
-        
-        // Go to categorize stage and set filter query
         const query = meta.query || meta.label;
         const searchInput = document.getElementById("quickSearch");
         if (searchInput) {
           searchInput.value = query;
           renderRecent();
         }
-        
-        // Update Categorize filters
         const catFilterType = document.getElementById("c-filter-type");
         if (catFilterType) catFilterType.value = "";
-        
         const catFrom = document.getElementById("c-from");
         if (catFrom) catFrom.value = document.getElementById("a-from").value;
         const catTo = document.getElementById("c-to");
         if (catTo) catTo.value = document.getElementById("a-to").value;
-        
-        // Render table
         renderTable();
-        // Redirect to categorize stage
         setStage("categorize");
       });
     }
@@ -877,10 +943,28 @@
 
   function selectZone(zone, triggerRender = false) {
     selectedZone = zone;
-    
-    // Toggle active class on map shapes
-    document.querySelectorAll(".map-region, .map-region-dot").forEach(r => {
-      r.classList.toggle("active", r.dataset.region === zone);
+
+    // Highlight Leaflet polygons
+    Object.keys(zonePolygons).forEach(z => {
+      const group = zonePolygons[z];
+      group.eachLayer(layer => {
+        if (layer instanceof L.Polygon) {
+          if (z === zone) {
+            layer.setStyle({ fillColor: '#FFD700', color: '#FFD700', fillOpacity: 0.45, weight: 3 });
+          } else {
+            const defaultColor = REGION_GEO[z].color;
+            layer.setStyle({ fillColor: defaultColor, color: defaultColor, fillOpacity: 0.12, weight: 1.5 });
+          }
+        }
+      });
+    });
+
+    // Toggle active class on badge elements
+    Object.keys(zoneBadgeMarkers).forEach(z => {
+      const badgeEl = document.getElementById(`badge-${z}`);
+      if (badgeEl) {
+        badgeEl.classList.toggle("active", z === zone);
+      }
     });
 
     // Update details card
@@ -892,7 +976,7 @@
     const actionBtn = document.getElementById("viewRegionDetailsBtn");
     const resetBtn = document.getElementById("resetRegionFilterBtn");
 
-    if (!stats) return;
+    if (!stats || !meta) return;
 
     titleEl.textContent = `${meta.label} (${meta.labelEn})`;
     subEl.textContent = `統計期間累計活動分析`;
@@ -945,13 +1029,29 @@
 
   function resetRegionDetailCard(triggerRender = false) {
     selectedZone = null;
-    document.querySelectorAll(".map-region, .map-region-dot").forEach(r => r.classList.remove("active"));
+    
+    // Reset Leaflet polygons
+    Object.keys(zonePolygons).forEach(z => {
+      const group = zonePolygons[z];
+      group.eachLayer(layer => {
+        if (layer instanceof L.Polygon) {
+          const defaultColor = REGION_GEO[z].color;
+          layer.setStyle({ fillColor: defaultColor, color: defaultColor, fillOpacity: 0.12, weight: 1.5 });
+        }
+      });
+    });
+
+    Object.keys(zoneBadgeMarkers).forEach(z => {
+      const badgeEl = document.getElementById(`badge-${z}`);
+      if (badgeEl) badgeEl.classList.remove("active");
+    });
+
     const titleEl = document.getElementById("regionDetailTitle");
     const subEl = document.getElementById("regionDetailSub");
     const contentEl = document.getElementById("regionDetailContent");
     const actionBtn = document.getElementById("viewRegionDetailsBtn");
     const resetBtn = document.getElementById("resetRegionFilterBtn");
-    
+
     if (titleEl) titleEl.textContent = "請點擊或懸停於地圖區域";
     if (subEl) subEl.textContent = "將為您展示各區域活動分佈與排行";
     if (contentEl) {
@@ -996,7 +1096,11 @@
       "<b>"+STAGE_META[stage].title+"</b>"+STAGE_META[stage].desc;
     renderMobileTabs();
     if(stage==="categorize") renderTable();
-    if(stage==="analyze") renderAnalyze();
+    if(stage==="analyze") {
+      renderAnalyze();
+      if(!leafletMap) initMapInteractions();
+      if(leafletMap) setTimeout(() => leafletMap.invalidateSize(), 150);
+    }
     if(stage==="report") renderReport();
     if(stage==="record") renderRecent();
   }
@@ -1161,9 +1265,12 @@
 
     // Update map badges
     Object.keys(zoneCounts).forEach(zone => {
-      const badgeText = document.getElementById(`badge-${zone}`);
-      if (badgeText) {
-        badgeText.textContent = zoneCounts[zone];
+      const badgeNum = document.getElementById(`badge-num-${zone}`);
+      if (badgeNum) {
+        badgeNum.textContent = zoneCounts[zone];
+      } else {
+        const badgeText = document.getElementById(`badge-${zone}`);
+        if (badgeText) badgeText.textContent = zoneCounts[zone];
       }
     });
 
