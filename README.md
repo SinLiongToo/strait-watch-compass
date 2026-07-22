@@ -65,5 +65,7 @@ python mnd_scraper.py 5
 
 ## 授權條款 License
 
-本專案採用 [MIT License](LICENSE) 條款開放授權。資料來源取自中華民國國防部全球資訊網即時軍事動態資訊。
+本專案採用 [MIT License](LICENSE) 條款（含中英文說明）開放授權。資料來源取自中華民國國防部全球資訊網即時軍事動態資訊。
+
+
 
