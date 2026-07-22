@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.DS_Store
+.vscode/
+.idea/
+mnd_2024_attachments/
+mnd_2024_md/
