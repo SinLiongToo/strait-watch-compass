@@ -662,6 +662,12 @@
         若要抓取國防部最新公告資料，請於終端機執行：<br>
         <span class="kbd">python mnd_scraper.py 5</span> （抓取最新 5 頁，速度極快）<br>
         執行完成並更新本地 <code>records.js</code> 後，回到網頁點選重新整理，即可看見同步按鍵並匯入最新資料。</p>
+        <div style="background:rgba(30,58,95,0.08); border-left:3px solid var(--slate); padding:14px 16px; border-radius:6px; font-size:13px; margin-top:14px; line-height:1.6;">
+          <h4 style="margin:0 0 8px 0; font-size:14px; color:var(--text); font-weight:700;">📢 資料來源聲明與勘誤聯絡 Data Source & Contact</h4>
+          <p style="margin:0 0 6px 0;"><b>資料來源：</b>本系統所有軍事動態資料均自動整理自 <a href="https://www.mnd.gov.tw" target="_blank" style="color:var(--amber);">中華民國國防部全球資訊網即時軍事動態</a>。</p>
+          <p style="margin:0;"><b>勘誤與回報：</b>由於部分歷史資料與每日動態係經由自動化爬蟲與 OCR 光學文字辨識技術解析，可能存在文字格式解析傾斜或數值誤擷取之狀況。若您發現任何紀錄有誤或有改進建議，歡迎隨時透過 Email 來信聯繫：<a href="mailto:masahltu0322@gmail.com" style="color:var(--amber);">masahltu0322@gmail.com</a>。</p>
+        </div>
+
         <div style="background:rgba(245,166,35,0.08); border-left:3px solid var(--amber); padding:14px 16px; border-radius:6px; font-size:13px; margin-top:14px; line-height:1.6;">
           <h4 style="margin:0 0 8px 0; font-size:14px; color:var(--amber); font-weight:700;">📊 國防部歷史資料結構與 OCR 補齊說明 Data History & OCR Notes</h4>
           <p style="margin:0 0 8px 0;">
@@ -687,6 +693,11 @@
     </section>
   </div>
 </main>
+
+<footer style="text-align:center; padding:24px 20px; font-size:12px; color:var(--text-dim); border-top:1px solid var(--border); margin-top:40px;">
+  <p style="margin:0 0 6px 0;">📢 <b>資料來源 Data Source</b>：本系統數據均整理自 <a href="https://www.mnd.gov.tw" target="_blank" style="color:var(--amber); text-decoration:none;">中華民國國防部全球資訊網即時軍事動態</a>。</p>
+  <p style="margin:0;">⚠️ <b>數據勘誤回報 Contact & Error Report</b>：資料係由自動化爬蟲與文字辨識（OCR）解析國防部公告產出，若發現任何數據誤擷取、漏計或格式錯誤，歡迎來信指正：<a href="mailto:masahltu0322@gmail.com" style="color:var(--amber); text-decoration:none;">masahltu0322@gmail.com</a></p>
+</footer>
 
 <script>
 (function(){

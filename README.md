@@ -63,9 +63,17 @@ python mnd_scraper.py 5
 
 ---
 
+## 📢 資料來源聲明與勘誤回報 Data Source & Disclaimer
+
+- **資料來源**：本系統所有軍事動態資料均整理自 [中華民國國防部全球資訊網即時軍事動態](https://www.mnd.gov.tw)。
+- **勘誤回報**：由於歷史資料與每日動態係經由自動化爬蟲與文字辨識（OCR）解析官方公告產出，可能存在少數文字格式解析不完善或數據擷取偏差之狀況。若您發現任何紀錄有誤、遺漏或有改進建議，歡迎隨時透過 Email 來信指正：[masahltu0322@gmail.com](mailto:masahltu0322@gmail.com)。
+
+---
+
 ## 授權條款 License
 
 本專案採用 [MIT License](LICENSE) 條款（含中英文說明）開放授權。資料來源取自中華民國國防部全球資訊網即時軍事動態資訊。
+
 
 
 
