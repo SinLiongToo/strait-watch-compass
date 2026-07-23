@@ -5,6 +5,10 @@ on:
     # 每天台灣時間上午 10:00 (UTC 02:00) 自動執行爬蟲
     - cron: '0 2 * * *'
   workflow_dispatch: # 支援在 GitHub 網頁上「一鍵手動觸發」執行
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/**'
 
 permissions:
   contents: write
