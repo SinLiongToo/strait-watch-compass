@@ -1,5 +1,21 @@
 window.mnd_records = [
   {
+    "date": "2026-08-29",
+    "type": "ship",
+    "count": 7,
+    "location": "台海周邊海域",
+    "notes": "迄0600時止，偵獲共艦7艘及公務船6艘，持續在臺海周邊活動",
+    "source": "中華民國國防部"
+  },
+  {
+    "date": "2026-08-29",
+    "type": "vessel",
+    "count": 6,
+    "location": "台海周邊海域",
+    "notes": "迄0600時止，偵獲共艦7艘及公務船6艘，持續在臺海周邊活動",
+    "source": "中華民國國防部"
+  },
+  {
     "date": "2026-08-28",
     "type": "ship",
     "count": 7,
