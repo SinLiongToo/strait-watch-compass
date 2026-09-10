@@ -1122,20 +1122,44 @@
     n.addEventListener("keydown", (e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); setStage(n.dataset.stage);} });
   });
 
+  const STAGE_ICONS = {
+    record: "📝",
+    categorize: "🗂️",
+    analyze: "📈",
+    report: "📑",
+    help: "❓"
+  };
+
   function renderMobileTabs(){
     const wrap = document.getElementById("mobileTabs");
+    if (!wrap) return;
     wrap.innerHTML = "";
     if(window.innerWidth > 860){ wrap.style.display="none"; return; }
     wrap.style.display = "flex";
     wrap.style.gap = "8px";
     wrap.style.overflowX = "auto";
-    wrap.style.marginBottom = "16px";
+    wrap.style.padding = "4px 0 12px 0";
+    wrap.style.marginBottom = "20px";
+    wrap.style.borderBottom = "1px solid var(--border)";
     STAGES.forEach(s=>{
       const b = document.createElement("button");
       b.className = "icon-btn stage-tab";
-      b.textContent = STAGE_META[s].title.split(" ")[0];
+      b.innerHTML = `<span>${STAGE_ICONS[s] || "🧭"}</span> ${STAGE_META[s].title.split(" ")[0]}`;
       b.style.flexShrink = "0";
-      if(s===currentStage){ b.style.borderColor="var(--amber)"; b.style.color="var(--amber)"; }
+      b.style.fontSize = "13px";
+      b.style.fontWeight = "600";
+      b.style.padding = "8px 14px";
+      b.style.borderRadius = "10px";
+      if(s===currentStage){
+        b.style.background = "var(--amber)";
+        b.style.color = "#ffffff";
+        b.style.borderColor = "var(--amber)";
+        b.style.fontWeight = "700";
+        b.style.boxShadow = "0 4px 12px rgba(245,166,35,0.3)";
+      } else {
+        b.style.background = "var(--panel)";
+        b.style.color = "var(--text)";
+      }
       b.addEventListener("click", ()=>setStage(s));
       wrap.appendChild(b);
     });
