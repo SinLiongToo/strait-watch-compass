@@ -44,21 +44,29 @@
   }
   header{
     display:flex;align-items:center;justify-content:space-between;
-    padding:18px 28px;border-bottom:1px solid var(--border);
-    position:sticky;top:0;background:var(--bg);z-index:20;
+    padding:14px 24px;border-bottom:1px solid var(--border);
+    position:sticky;top:0;background:var(--bg);z-index:30;
+    gap:12px;
   }
-  header h1{font-size:18px;margin:0;font-weight:700;letter-spacing:0.02em;}
+  header h1{font-size:17px;margin:0;font-weight:700;letter-spacing:0.02em;min-width:0;}
   header h1 span{display:block;font-size:12px;font-weight:400;color:var(--text-dim);margin-top:2px;}
-  .header-actions{display:flex;gap:10px;align-items:center;}
+  .header-actions{display:flex;gap:8px;align-items:center;flex-shrink:0;}
   button{font-family:inherit;}
   .icon-btn{
     background:var(--panel);border:1px solid var(--border);color:var(--text);
     border-radius:10px;padding:8px 12px;cursor:pointer;font-size:13px;
     display:flex;align-items:center;gap:6px;transition:.15s;
+    user-select:none; -webkit-tap-highlight-color:transparent;
   }
   .icon-btn:hover{border-color:var(--amber);color:var(--amber);}
   .icon-btn:focus-visible, .stage-tab:focus-visible, .compass-node:focus-visible{
     outline:2px solid var(--amber);outline-offset:2px;
+  }
+  @media (max-width:600px){
+    header{padding:10px 14px;}
+    header h1{font-size:15px;}
+    header h1 span{font-size:10px;}
+    .icon-btn{padding:6px 10px;font-size:12px;}
   }
 
   main{display:flex;flex-direction:column;min-height:calc(100vh - 64px);}
@@ -1126,15 +1134,21 @@
   const themeBtn = document.getElementById("themeToggle");
   function applyTheme(t){
     document.documentElement.setAttribute("data-theme", t);
-    themeBtn.textContent = t === "dark" ? "☀️ 淺色 Light" : "🌙 深色 Dark";
+    if (themeBtn) themeBtn.textContent = t === "dark" ? "☀️ 淺色 Light" : "🌙 深色 Dark";
     localStorage.setItem(THEME_KEY, t);
+    if (typeof leafletMap !== 'undefined' && leafletMap && typeof setTileLayer === 'function') {
+      setTileLayer(t === 'dark' ? 'dark' : 'satellite');
+    }
   }
   applyTheme(localStorage.getItem(THEME_KEY) || "light");
-  themeBtn.addEventListener("click", ()=>{
-    const cur = document.documentElement.getAttribute("data-theme");
-    applyTheme(cur === "dark" ? "light" : "dark");
-    if (currentStage === "analyze") renderAnalyze();
-  });
+  if (themeBtn) {
+    themeBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      const cur = document.documentElement.getAttribute("data-theme");
+      applyTheme(cur === "dark" ? "light" : "dark");
+      if (currentStage === "analyze") renderAnalyze();
+    });
+  }
 
   // ---------- stage nav ----------
   function setStage(stage){
