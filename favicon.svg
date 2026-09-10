@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="46" fill="#0F1B2D" stroke="#F5A623" stroke-width="4"/>
+  <circle cx="50" cy="50" r="38" fill="none" stroke="#1E3A5F" stroke-width="1.5" stroke-dasharray="4 2"/>
+  <!-- Compass Needle -->
+  <polygon points="50,14 59,48 50,42 41,48" fill="#F5A623"/>
+  <polygon points="50,86 59,52 50,58 41,52" fill="#7FB5A0"/>
+  <!-- Cardinal Points -->
+  <text x="50" y="10" font-family="sans-serif" font-weight="900" font-size="8" fill="#F5A623" text-anchor="middle">N</text>
+  <text x="50" y="96" font-family="sans-serif" font-weight="900" font-size="8" fill="#7FB5A0" text-anchor="middle">S</text>
+  <text x="94" y="53" font-family="sans-serif" font-weight="900" font-size="8" fill="#5b6b7c" text-anchor="middle">E</text>
+  <text x="6" y="53" font-family="sans-serif" font-weight="900" font-size="8" fill="#5b6b7c" text-anchor="middle">W</text>
+  <!-- Center Cap -->
+  <circle cx="50" cy="50" r="5" fill="#F8F4ED" stroke="#0F1B2D" stroke-width="1.5"/>
+</svg>
