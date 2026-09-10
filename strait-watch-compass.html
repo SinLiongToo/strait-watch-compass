@@ -272,11 +272,47 @@
     font-family: inherit;
   }
 
+  .mobile-nav-bar { display: none; }
   @media (max-width:860px){
     main{flex-direction:column;}
     .compass-top-bar{display:none;}
-    .content-col{padding:20px;max-width:100%;}
+    .content-col{padding:16px;max-width:100%;}
     .grid2{grid-template-columns:1fr;}
+    .mobile-nav-bar {
+      display: flex;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 64px;
+      z-index: 25;
+      overflow-x: auto;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+    .mobile-tab-btn {
+      flex-shrink: 0;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .mobile-tab-btn.active {
+      background: var(--amber);
+      color: #ffffff;
+      border-color: var(--amber);
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(245,166,35,0.35);
+    }
   }
 </style>
 <script src="records.js"></script>
@@ -302,6 +338,14 @@
     <button class="icon-btn" id="themeToggle">🌙 深色 Dark</button>
   </div>
 </header>
+
+<nav class="mobile-nav-bar" id="mobileNavBar">
+  <button class="mobile-tab-btn active" data-stage="record">📝 紀錄 Record</button>
+  <button class="mobile-tab-btn" data-stage="categorize">🗂️ 分類 Categorize</button>
+  <button class="mobile-tab-btn" data-stage="analyze">📈 分析 Analyze</button>
+  <button class="mobile-tab-btn" data-stage="report">📑 報告 Report</button>
+  <button class="mobile-tab-btn" data-stage="help">❓ 說明 Help</button>
+</nav>
 
 <main>
   <div class="compass-top-bar">
@@ -1105,6 +1149,9 @@
     document.querySelectorAll(".compass-node").forEach(n=>{
       n.classList.toggle("active", n.dataset.stage === stage);
     });
+    document.querySelectorAll(".mobile-tab-btn").forEach(btn=>{
+      btn.classList.toggle("active", btn.dataset.stage === stage);
+    });
     document.getElementById("stageDesc").innerHTML =
       "<b>"+STAGE_META[stage].title+"</b>"+STAGE_META[stage].desc;
     renderMobileTabs();
@@ -1120,6 +1167,9 @@
   document.querySelectorAll(".compass-node").forEach(n=>{
     n.addEventListener("click", ()=>setStage(n.dataset.stage));
     n.addEventListener("keydown", (e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); setStage(n.dataset.stage);} });
+  });
+  document.querySelectorAll(".mobile-tab-btn").forEach(n=>{
+    n.addEventListener("click", ()=>setStage(n.dataset.stage));
   });
 
   const STAGE_ICONS = {
