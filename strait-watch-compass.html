@@ -732,29 +732,40 @@
   let records = [];
   try{ records = JSON.parse(localStorage.getItem(STORE_KEY) || "[]"); }catch(e){ records = []; }
 
+  function save(){ 
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify(records)); 
+    } catch(quotaErr) {
+      console.warn("localStorage quota exceeded on mobile device, keeping records in memory:", quotaErr);
+    }
+    if (typeof updateSyncButton === 'function') updateSyncButton();
+  }
+
   // Auto sync scraped data from records.js on page load
-  if (typeof mnd_records !== 'undefined' && Array.isArray(mnd_records) && mnd_records.length > 0) {
-    if (records.length === 0) {
-      records = mnd_records.map(r => Object.assign({ id: uid() }, r));
-      localStorage.setItem(STORE_KEY, JSON.stringify(records));
-    } else {
-      const existingKeys = new Set(records.map(r => `${r.date}|${r.type}|${r.count}`));
-      const newFromScraper = mnd_records.filter(r => !existingKeys.has(`${r.date}|${r.type}|${r.count}`));
-      if (newFromScraper.length > 0) {
-        records.push(...newFromScraper.map(r => Object.assign({ id: uid() }, r)));
-        localStorage.setItem(STORE_KEY, JSON.stringify(records));
+  try {
+    if (typeof mnd_records !== 'undefined' && Array.isArray(mnd_records) && mnd_records.length > 0) {
+      if (!records || records.length === 0) {
+        records = mnd_records.map(r => Object.assign({ id: uid() }, r));
+      } else {
+        const existingKeys = new Set(records.map(r => `${r.date}|${r.type}|${r.count}`));
+        const newFromScraper = mnd_records.filter(r => !existingKeys.has(`${r.date}|${r.type}|${r.count}`));
+        if (newFromScraper.length > 0) {
+          records.push(...newFromScraper.map(r => Object.assign({ id: uid() }, r)));
+        }
       }
+      save();
+    }
+  } catch(syncErr) {
+    console.error("Auto sync error:", syncErr);
+    if (!records || records.length === 0) {
+      records = (typeof mnd_records !== 'undefined' && Array.isArray(mnd_records)) ? mnd_records.slice() : [];
     }
   }
 
-  let currentStage = "record";
+  let currentStage = "analyze";
   let countChartInstance = null;
   let eventsChartInstance = null;
 
-  function save(){ 
-    localStorage.setItem(STORE_KEY, JSON.stringify(records)); 
-    if (typeof updateSyncButton === 'function') updateSyncButton();
-  }
   function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
   // ---------- Leaflet Map constants and helpers ----------
