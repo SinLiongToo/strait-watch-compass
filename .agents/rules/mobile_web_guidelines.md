@@ -31,3 +31,7 @@ Guidelines for preventing mobile freezing, local storage quota crashes, IIFE sco
   }
   ```
 - Support both `click` and `touchstart` event delegation where appropriate.
+
+## 4. IndexedDB & UI Timestamp Badge
+- Use IndexedDB (`StraitWatchCompassDB` / `records_store`) to persist dataset records across sessions without quota limits.
+- Keep header badge (`datasetUpdateBadge`) updated with latest dataset date and total record count.

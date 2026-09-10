@@ -350,6 +350,9 @@
     </div>
   </h1>
   <div class="header-actions">
+    <div id="datasetUpdateBadge" class="update-badge" style="font-size:12px; color:var(--text); background:var(--panel-2); padding:6px 12px; border-radius:10px; border:1px solid var(--border); display:flex; align-items:center; gap:6px; font-weight:600; white-space:nowrap;">
+      📅 最新數據：載入中...
+    </div>
     <button class="icon-btn" id="syncCrawlerBtn" style="display:none; background:var(--sage); color:white; border-color:var(--sage); font-weight:700;">🔄 同步爬蟲資料 (0)</button>
     <button class="icon-btn" id="themeToggle">🌙 深色 Dark</button>
   </div>
@@ -728,6 +731,49 @@
   };
   const STORE_KEY = "strait-watch-compass-records";
   const THEME_KEY = "strait-watch-compass-theme";
+  const DB_NAME = "StraitWatchCompassDB";
+  const DB_STORE = "records_store";
+
+  // IndexedDB asynchronous storage engine to prevent mobile localStorage 5MB quota errors
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) { reject("IndexedDB unavailable"); return; }
+      const req = window.indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(DB_STORE)) {
+          db.createObjectStore(DB_STORE);
+        }
+      };
+      req.onsuccess = (e) => resolve(e.target.result);
+      req.onerror = (e) => reject(e.target.error);
+    });
+  }
+
+  function saveToDB(data) {
+    openDB().then(db => {
+      const tx = db.transaction(DB_STORE, "readwrite");
+      tx.objectStore(DB_STORE).put(data, "user_records");
+    }).catch(err => {
+      console.warn("IndexedDB save fallback:", err);
+    });
+  }
+
+  function updateLastUpdateBadge() {
+    const badge = document.getElementById("datasetUpdateBadge");
+    if (!badge) return;
+    if (!records || records.length === 0) {
+      badge.innerHTML = `<span>📅 最新數據：無資料</span>`;
+      return;
+    }
+    let maxDate = "";
+    for (let i = 0; i < records.length; i++) {
+      if (records[i].date && records[i].date > maxDate) {
+        maxDate = records[i].date;
+      }
+    }
+    badge.innerHTML = `<span>📅 最新數據：<b>${maxDate || "未知"}</b></span> <span style="opacity:0.75; font-size:11px;">(${records.length.toLocaleString()} 筆)</span>`;
+  }
 
   let records = [];
   try{ records = JSON.parse(localStorage.getItem(STORE_KEY) || "[]"); }catch(e){ records = []; }
@@ -736,9 +782,11 @@
     try {
       localStorage.setItem(STORE_KEY, JSON.stringify(records)); 
     } catch(quotaErr) {
-      console.warn("localStorage quota exceeded on mobile device, keeping records in memory:", quotaErr);
+      console.warn("localStorage quota exceeded on mobile device, relying on IndexedDB & in-memory:", quotaErr);
     }
+    saveToDB(records);
     if (typeof updateSyncButton === 'function') updateSyncButton();
+    if (typeof updateLastUpdateBadge === 'function') updateLastUpdateBadge();
   }
 
   // Auto sync scraped data from records.js on page load
@@ -761,6 +809,7 @@
       records = (typeof mnd_records !== 'undefined' && Array.isArray(mnd_records)) ? mnd_records.slice() : [];
     }
   }
+  updateLastUpdateBadge();
 
   let currentStage = "analyze";
   let countChartInstance = null;

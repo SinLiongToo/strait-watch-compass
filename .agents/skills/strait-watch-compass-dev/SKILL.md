@@ -28,10 +28,11 @@ python mnd_scraper.py 5
 ## 3. Mobile Compatibility Audit Checklist
 
 Before releasing any frontend changes:
-1. **LocalStorage Safety**: Verify all `localStorage.setItem` calls are inside `try...catch` blocks to prevent `QuotaExceededError` crashes on mobile devices with 5MB limits.
-2. **IIFE Window Exports**: Verify that functions invoked by inline DOM attributes (`onclick`, `onchange`) are attached to `window` (e.g., `window.setStage`, `window.applyTheme`).
-3. **SVG Pointer Events**: Ensure interactive SVG icons pass pointer events through or set `pointer-events: none` on child elements.
-4. **Mobile Navigation**: Test tab switching between `Record`, `Categorize`, `Analyze`, `Report`, and `Help` on mobile viewport widths (<768px).
+1. **LocalStorage & IndexedDB Safety**: Verify all `localStorage.setItem` calls are inside `try...catch` blocks and `IndexedDB` (`StraitWatchCompassDB`) is used for high-volume record persistence to prevent `QuotaExceededError` crashes on mobile devices with 5MB limits.
+2. **Webpage Update Timestamp Badge**: Verify that `updateLastUpdateBadge()` correctly renders the latest record date and total count in `#datasetUpdateBadge`.
+3. **IIFE Window Exports**: Verify that functions invoked by inline DOM attributes (`onclick`, `onchange`) are attached to `window` (e.g., `window.setStage`, `window.applyTheme`).
+4. **SVG Pointer Events**: Ensure interactive SVG icons pass pointer events through or set `pointer-events: none` on child elements.
+5. **Mobile Navigation**: Test tab switching between `Record`, `Categorize`, `Analyze`, `Report`, and `Help` on mobile viewport widths (<768px).
 
 ## 4. CI/CD & Deployment
 

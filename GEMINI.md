@@ -23,6 +23,10 @@ This document outlines the coding standards, architectural rules, and developmen
 - **Child Element Interception**: SVG child elements (`<circle>`, `<path>`, `<text>`, `<rect>`) inside interactive components (e.g., compass logo, interactive map icons) can intercept pointer/touch events.
 - **Pointer-Events CSS**: Ensure interactive SVG nodes disable pointer events on internal elements using `.compass-node * { pointer-events: none !important; }` or handle event delegation using both `click` and `touchstart` event listeners.
 
+### 1.4 Storage Architecture & UI Update Badge
+- **IndexedDB Asynchronous Engine**: Use IndexedDB (`StraitWatchCompassDB` / `records_store`) as the primary high-capacity client-side database to bypass the 5MB `localStorage` limit.
+- **Webpage Update Timestamp Badge**: Display the latest dataset date & record count in the header badge (`datasetUpdateBadge`). Call `updateLastUpdateBadge()` whenever dataset state changes (on load, sync, import, or clear).
+
 ---
 
 ## 2. Navigation & UI State Management
