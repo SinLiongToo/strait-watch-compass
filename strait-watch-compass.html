@@ -648,7 +648,8 @@
         <b>報告 Report</b> — 產生文字摘要，匯出成 Markdown 或 JSON；也可以匯入先前匯出的 JSON。</p>
         <h3>快速開始 Quick start</h3>
         <p>點一下下方按鈕載入示範資料。除了現代範例資料，我們也提供 <b>1995-1996 台海飛彈危機歷史模擬數據</b>，供您測試曲線趨勢圖分析：</p>
-        <div class="btn-row" style="margin-top:10px;">
+        <div class="btn-row" style="margin-top:10px; flex-wrap:wrap;">
+          <button class="btn-primary" id="resetFullMndRecords" style="background:var(--sage); color:white; border-color:var(--sage); font-weight:700;">🔄 重設並載入國防部官方 3,682 筆最新完整數據 (Reset Full MND Data)</button>
           <button class="btn-ghost" id="loadDemo">載入現代範例資料 Load modern demo</button>
           <button class="btn-ghost" id="loadCrisis1996" style="border-color:var(--amber); color:var(--amber);">載入 1995-1996 飛彈危機數據 Load 1996 Crisis</button>
         </div>
@@ -1768,6 +1769,20 @@
   }
 
   // ---------- demo data ----------
+  const resetFullBtn = document.getElementById("resetFullMndRecords");
+  if (resetFullBtn) {
+    resetFullBtn.addEventListener("click", ()=>{
+      if (typeof mnd_records !== 'undefined' && Array.isArray(mnd_records) && mnd_records.length > 0) {
+        records = mnd_records.map(r => Object.assign({ id: uid() }, r));
+        save();
+        alert("已成功載入與同步國防部官方 " + records.length + " 筆最新軍事紀錄！");
+        setStage("analyze");
+      } else {
+        alert("尚未載入 mnd_records 數據檔。");
+      }
+    });
+  }
+
   document.getElementById("loadDemo").addEventListener("click", ()=>{
     const demo = [
       {date:"2026-06-02", type:"air", count:14, location:"台灣西南空域 SW ADIZ", notes:"含逾越海峽中線", source:"示範資料"},
