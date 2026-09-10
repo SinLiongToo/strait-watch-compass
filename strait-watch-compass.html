@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>台海動態羅盤 Strait Watch Compass</title>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="shortcut icon" href="favicon.svg">
@@ -432,6 +435,13 @@
 
     <!-- RECORD -->
     <section class="panel" id="panel-record">
+      <div style="background:var(--panel-2); border:1px solid var(--amber); border-radius:10px; padding:12px 16px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+        <div style="font-size:13px; font-weight:600; color:var(--text);">
+          📊 <b>觀看動態趨勢圖表與戰術地圖？ View Trend Charts & Map</b>
+          <span style="display:block; font-size:11px; color:var(--text-dim); font-weight:400; margin-top:2px;">即時統計共軍海空活動架次、事件趨勢與區域分佈</span>
+        </div>
+        <button onclick="setStage('analyze')" style="white-space:nowrap; padding:9px 16px; font-size:13px; font-weight:700; background:var(--amber); color:white; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 12px rgba(245,166,35,0.3);">📈 切換至「分析」圖表頁面</button>
+      </div>
       <h2>紀錄 Record</h2>
       <div class="sub">登錄一筆新的動態紀錄 — 軍機、潛艦、艦艇、漁船、無人機或氣球</div>
       <div class="grid2">
