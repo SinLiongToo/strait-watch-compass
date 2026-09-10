@@ -1442,8 +1442,11 @@
       wrap.innerHTML = '<div class="empty"><div class="big">🔍</div>沒有符合條件的紀錄。</div>';
       return;
     }
-    let html = '<table><thead><tr><th>日期</th><th>類型</th><th>數量</th><th>位置/航線</th><th>備註</th><th>來源</th><th></th></tr></thead><tbody>';
-    items.forEach(r=>{
+    const MAX_DISPLAY = 150;
+    const displayItems = items.slice(0, MAX_DISPLAY);
+    let html = `<div style="font-size:12px; color:var(--text-dim); margin-bottom:10px; font-weight:600;">顯示前 ${displayItems.length} 筆紀錄（共 ${items.length.toLocaleString()} 筆紀錄）</div>`;
+    html += '<table><thead><tr><th>日期</th><th>類型</th><th>數量</th><th>位置/航線</th><th>備註</th><th>來源</th><th></th></tr></thead><tbody>';
+    displayItems.forEach(r=>{
       const tm = TYPE_META[r.type];
       html += `<tr><td>${r.date}</td><td><span class="tag ${tm.cls}">${tm.label}</span></td><td>${r.count}</td>
         <td>${escapeHtml(r.location)}</td><td>${escapeHtml(r.notes)}</td><td>${escapeHtml(r.source)}</td>
@@ -1697,6 +1700,7 @@
             ]
           },
           options: {
+            animation: { duration: 150 },
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
