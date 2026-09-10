@@ -51,7 +51,9 @@
     position:sticky;top:0;background:var(--bg);z-index:30;
     gap:12px;
   }
-  header h1{font-size:17px;margin:0;font-weight:700;letter-spacing:0.02em;min-width:0;}
+  header h1{font-size:17px;margin:0;font-weight:700;letter-spacing:0.02em;min-width:0;cursor:pointer;user-select:none;}
+  header h1 *{pointer-events:none !important;}
+  header h1:active{transform:scale(0.97);}
   header h1 span{display:block;font-size:12px;font-weight:400;color:var(--text-dim);margin-top:2px;}
   .header-actions{display:flex;gap:8px;align-items:center;flex-shrink:0;}
   button{font-family:inherit;}
@@ -1231,17 +1233,6 @@
   // ---------- stage nav ----------
   function setStage(stage){
     if (!stage || STAGE_ANGLES[stage] === undefined) return;
-
-    // Visual compass spin feedback on logo click
-    try {
-      const logoSvg = document.querySelector("#headerLogo svg");
-      if (logoSvg) {
-        logoSvg.style.transition = "transform 0.5s ease";
-        logoSvg.style.transform = "rotate(360deg)";
-        setTimeout(() => { logoSvg.style.transform = "none"; }, 500);
-      }
-    } catch(e){}
-
     currentStage = stage;
     try {
       const needle = document.getElementById("compassNeedle");
@@ -1289,10 +1280,21 @@
   window.setStage = setStage;
   window.applyTheme = applyTheme;
 
+  let logoRotationAngle = 0;
+
   // Global document-level click and touch handler for all stage buttons, logo, and theme toggle
   const handleInteraction = (e) => {
     const stageBtn = e.target.closest("[data-stage]");
     if (stageBtn && stageBtn.dataset && stageBtn.dataset.stage) {
+      if (stageBtn.id === "headerLogo" || stageBtn.closest("#headerLogo")) {
+        logoRotationAngle += 360;
+        const logoSvg = document.querySelector("#headerLogo svg");
+        if (logoSvg) {
+          logoSvg.style.transition = "transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)";
+          logoSvg.style.transform = `rotate(${logoRotationAngle}deg)`;
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
       setStage(stageBtn.dataset.stage);
     }
     const themeTarget = e.target.closest("#themeToggle");
