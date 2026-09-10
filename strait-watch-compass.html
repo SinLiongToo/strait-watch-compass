@@ -339,7 +339,7 @@
 <body>
 
 <header>
-  <h1 id="headerLogo" data-stage="analyze" style="display:flex;align-items:center;gap:12px;cursor:pointer;" title="點擊切換分析圖表 Switch to Analysis">
+  <h1 id="headerLogo" data-stage="analyze" onclick="setStage('analyze')" style="display:flex;align-items:center;gap:12px;cursor:pointer;" title="點擊切換分析圖表 Switch to Analysis">
     <svg width="32" height="32" viewBox="0 0 100 100" style="flex-shrink:0;">
       <circle cx="50" cy="50" r="46" fill="#0F1B2D" stroke="#F5A623" stroke-width="5"/>
       <circle cx="50" cy="50" r="36" fill="none" stroke="#1E3A5F" stroke-width="2" stroke-dasharray="4 2"/>
@@ -361,18 +361,18 @@
 </header>
 
 <nav class="mobile-nav-bar" id="mobileNavBar">
-  <button class="mobile-tab-btn active" data-stage="record">📝 紀錄 Record</button>
-  <button class="mobile-tab-btn" data-stage="categorize">🗂️ 分類 Categorize</button>
-  <button class="mobile-tab-btn" data-stage="analyze">📈 分析 Analyze</button>
-  <button class="mobile-tab-btn" data-stage="report">📑 報告 Report</button>
-  <button class="mobile-tab-btn" data-stage="help">❓ 說明 Help</button>
+  <button class="mobile-tab-btn active" data-stage="record" onclick="setStage('record')">📝 紀錄 Record</button>
+  <button class="mobile-tab-btn" data-stage="categorize" onclick="setStage('categorize')">🗂️ 分類 Categorize</button>
+  <button class="mobile-tab-btn" data-stage="analyze" onclick="setStage('analyze')">📈 分析 Analyze</button>
+  <button class="mobile-tab-btn" data-stage="report" onclick="setStage('report')">📑 報告 Report</button>
+  <button class="mobile-tab-btn" data-stage="help" onclick="setStage('help')">❓ 說明 Help</button>
 </nav>
 
 <main>
   <div class="compass-top-bar">
     <div class="compass-top-bar-inner">
       <!-- Left: Mini Rotating Compass -->
-      <div class="mini-compass-wrap" data-stage="analyze" style="cursor:pointer;" title="點擊切換分析圖表 Switch to Analysis">
+      <div class="mini-compass-wrap" data-stage="analyze" onclick="setStage('analyze')" style="cursor:pointer;" title="點擊切換分析圖表 Switch to Analysis">
         <svg class="mini-compass" viewBox="0 0 80 80">
           <circle cx="40" cy="40" r="36" fill="none" stroke="var(--border)" stroke-width="1.5"></circle>
           <circle cx="40" cy="40" r="24" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="2 2"></circle>
@@ -400,31 +400,31 @@
           <line x1="425" y1="30" x2="425" y2="40" stroke="var(--border)" stroke-width="1" />
           <line x1="575" y1="30" x2="575" y2="40" stroke="var(--border)" stroke-width="1" />
           
-          <g class="compass-node" data-stage="record" tabindex="0" role="button" aria-label="紀錄 Record">
+          <g class="compass-node" data-stage="record" onclick="setStage('record')" tabindex="0" role="button" aria-label="紀錄 Record">
             <circle class="node-circle" cx="50" cy="35" r="22"></circle>
             <text class="node-label" x="50" y="32">紀錄</text>
             <text class="node-label-en" x="50" y="44">Record</text>
             <text class="node-degree" x="50" y="9">000°</text>
           </g>
-          <g class="compass-node" data-stage="categorize" tabindex="0" role="button" aria-label="分類 Categorize">
+          <g class="compass-node" data-stage="categorize" onclick="setStage('categorize')" tabindex="0" role="button" aria-label="分類 Categorize">
             <circle class="node-circle" cx="200" cy="35" r="22"></circle>
             <text class="node-label" x="200" y="32">分類</text>
             <text class="node-label-en" x="200" y="44">Categorize</text>
             <text class="node-degree" x="200" y="9">090°</text>
           </g>
-          <g class="compass-node" data-stage="analyze" tabindex="0" role="button" aria-label="分析 Analyze">
+          <g class="compass-node" data-stage="analyze" onclick="setStage('analyze')" tabindex="0" role="button" aria-label="分析 Analyze">
             <circle class="node-circle" cx="350" cy="35" r="22"></circle>
             <text class="node-label" x="350" y="32">分析</text>
             <text class="node-label-en" x="350" y="44">Analyze</text>
             <text class="node-degree" x="350" y="9">180°</text>
           </g>
-          <g class="compass-node" data-stage="report" tabindex="0" role="button" aria-label="報告 Report">
+          <g class="compass-node" data-stage="report" onclick="setStage('report')" tabindex="0" role="button" aria-label="報告 Report">
             <circle class="node-circle" cx="500" cy="35" r="22"></circle>
             <text class="node-label" x="500" y="32">報告</text>
             <text class="node-label-en" x="500" y="44">Report</text>
             <text class="node-degree" x="500" y="9">270°</text>
           </g>
-          <g class="compass-node" data-stage="help" tabindex="0" role="button" aria-label="說明 Help">
+          <g class="compass-node" data-stage="help" onclick="setStage('help')" tabindex="0" role="button" aria-label="說明 Help">
             <circle class="node-circle" cx="650" cy="35" r="22"></circle>
             <text class="node-label" x="650" y="32">說明</text>
             <text class="node-label-en" x="650" y="44">Help</text>
@@ -1923,8 +1923,6 @@
   }
 
   // ---------- sync crawler data ----------
-  const syncBtn = document.getElementById("syncCrawlerBtn");
-  
   function getNewScrapedRecords() {
     if (typeof mnd_records === 'undefined' || !Array.isArray(mnd_records)) return [];
     const existingKeys = new Set(records.map(r => `${r.date}|${r.type}|${r.count}`));
@@ -1935,6 +1933,7 @@
   }
 
   function updateSyncButton() {
+    const syncBtn = document.getElementById("syncCrawlerBtn");
     if (!syncBtn) return;
     const newRecords = getNewScrapedRecords();
     if (newRecords.length > 0) {
@@ -1945,6 +1944,7 @@
     }
   }
 
+  const syncBtn = document.getElementById("syncCrawlerBtn");
   if (syncBtn) {
     syncBtn.addEventListener("click", () => {
       const newRecords = getNewScrapedRecords();
