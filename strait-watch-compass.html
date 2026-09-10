@@ -156,6 +156,11 @@
     font-weight: 600;
   }
 
+  .compass-node * { pointer-events: none !important; }
+  .compass-node { pointer-events: all !important; cursor: pointer !important; }
+  .mini-compass-wrap * { pointer-events: none !important; }
+  .mini-compass-wrap { pointer-events: all !important; cursor: pointer !important; }
+
   .content-col{flex:1;padding:32px 36px;max-width:1000px;margin:0 auto;width:100%;}
   .panel{
     background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
@@ -332,7 +337,7 @@
 <body>
 
 <header>
-  <h1 id="headerLogo" style="display:flex;align-items:center;gap:12px;cursor:pointer;" title="點擊切換分析圖表 Switch to Analysis">
+  <h1 id="headerLogo" data-stage="analyze" style="display:flex;align-items:center;gap:12px;cursor:pointer;" title="點擊切換分析圖表 Switch to Analysis">
     <svg width="32" height="32" viewBox="0 0 100 100" style="flex-shrink:0;">
       <circle cx="50" cy="50" r="46" fill="#0F1B2D" stroke="#F5A623" stroke-width="5"/>
       <circle cx="50" cy="50" r="36" fill="none" stroke="#1E3A5F" stroke-width="2" stroke-dasharray="4 2"/>
@@ -362,7 +367,7 @@
   <div class="compass-top-bar">
     <div class="compass-top-bar-inner">
       <!-- Left: Mini Rotating Compass -->
-      <div class="mini-compass-wrap" title="當前階段方位角 Current Stage Bearing">
+      <div class="mini-compass-wrap" data-stage="analyze" style="cursor:pointer;" title="點擊切換分析圖表 Switch to Analysis">
         <svg class="mini-compass" viewBox="0 0 80 80">
           <circle cx="40" cy="40" r="36" fill="none" stroke="var(--border)" stroke-width="1.5"></circle>
           <circle cx="40" cy="40" r="24" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="2 2"></circle>
@@ -1200,25 +1205,28 @@
   window.setStage = setStage;
   window.applyTheme = applyTheme;
 
-  // Global document-level click handler for all stage buttons, logo, and theme toggle
-  document.addEventListener("click", (e) => {
+  // Global document-level click and touch handler for all stage buttons, logo, and theme toggle
+  const handleInteraction = (e) => {
     const stageBtn = e.target.closest("[data-stage]");
     if (stageBtn && stageBtn.dataset && stageBtn.dataset.stage) {
       setStage(stageBtn.dataset.stage);
     }
-    const logoBtn = e.target.closest("#headerLogo");
-    if (logoBtn) {
-      setStage("analyze");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
     const themeTarget = e.target.closest("#themeToggle");
     if (themeTarget) {
-      e.preventDefault();
+      if (e.cancelable) e.preventDefault();
       const cur = document.documentElement.getAttribute("data-theme");
       applyTheme(cur === "dark" ? "light" : "dark");
       if (currentStage === "analyze") renderAnalyze();
     }
-  });
+  };
+
+  document.addEventListener("click", handleInteraction);
+  document.addEventListener("touchstart", (e) => {
+    const target = e.target.closest("[data-stage], #themeToggle");
+    if (target) {
+      handleInteraction(e);
+    }
+  }, { passive: true });
 
   const STAGE_ICONS = {
     record: "📝",
