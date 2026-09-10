@@ -440,7 +440,7 @@
           📊 <b>觀看動態趨勢圖表與戰術地圖？ View Trend Charts & Map</b>
           <span style="display:block; font-size:11px; color:var(--text-dim); font-weight:400; margin-top:2px;">即時統計共軍海空活動架次、事件趨勢與區域分佈</span>
         </div>
-        <button onclick="setStage('analyze')" style="white-space:nowrap; padding:9px 16px; font-size:13px; font-weight:700; background:var(--amber); color:white; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 12px rgba(245,166,35,0.3);">📈 切換至「分析」圖表頁面</button>
+        <button data-stage="analyze" style="white-space:nowrap; padding:9px 16px; font-size:13px; font-weight:700; background:var(--amber); color:white; border:none; border-radius:8px; cursor:pointer; box-shadow:0 4px 12px rgba(245,166,35,0.3);">📈 切換至「分析」圖表頁面</button>
       </div>
       <h2>紀錄 Record</h2>
       <div class="sub">登錄一筆新的動態紀錄 — 軍機、潛艦、艦艇、漁船、無人機或氣球</div>
@@ -1163,13 +1163,17 @@
 
   // ---------- stage nav ----------
   function setStage(stage){
+    if (!stage || STAGE_ANGLES[stage] === undefined) return;
     currentStage = stage;
     const needle = document.getElementById("compassNeedle");
     if(needle && STAGE_ANGLES[stage] !== undefined){
       needle.style.transform = `rotate(${STAGE_ANGLES[stage]}deg)`;
     }
     STAGES.forEach(s=>{
-      document.getElementById("panel-"+s).style.display = (s===stage) ? "block" : "none";
+      const panelEl = document.getElementById("panel-"+s);
+      if (panelEl) {
+        panelEl.style.display = (s===stage) ? "block" : "none";
+      }
     });
     document.querySelectorAll(".compass-node").forEach(n=>{
       n.classList.toggle("active", n.dataset.stage === stage);
@@ -1177,42 +1181,43 @@
     document.querySelectorAll(".mobile-tab-btn").forEach(btn=>{
       btn.classList.toggle("active", btn.dataset.stage === stage);
     });
-    document.getElementById("stageDesc").innerHTML =
-      "<b>"+STAGE_META[stage].title+"</b>"+STAGE_META[stage].desc;
+    const descEl = document.getElementById("stageDesc");
+    if (descEl && STAGE_META[stage]) {
+      descEl.innerHTML = "<b>"+STAGE_META[stage].title+"</b>"+STAGE_META[stage].desc;
+    }
     renderMobileTabs();
     if(stage==="categorize") renderTable();
     if(stage==="analyze") {
       renderAnalyze();
       if(!leafletMap) initMapInteractions();
-      if(leafletMap) setTimeout(() => leafletMap.invalidateSize(), 150);
+      if(leafletMap) setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(); }, 150);
     }
     if(stage==="report") renderReport();
     if(stage==="record") renderRecent();
   }
-  const headerLogo = document.getElementById("headerLogo");
-  if (headerLogo) {
-    headerLogo.addEventListener("click", () => {
+
+  // Expose globally on window
+  window.setStage = setStage;
+  window.applyTheme = applyTheme;
+
+  // Global document-level click handler for all stage buttons, logo, and theme toggle
+  document.addEventListener("click", (e) => {
+    const stageBtn = e.target.closest("[data-stage]");
+    if (stageBtn && stageBtn.dataset && stageBtn.dataset.stage) {
+      setStage(stageBtn.dataset.stage);
+    }
+    const logoBtn = e.target.closest("#headerLogo");
+    if (logoBtn) {
       setStage("analyze");
       window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  }
-
-  const mobileNavBar = document.getElementById("mobileNavBar");
-  if (mobileNavBar) {
-    mobileNavBar.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-stage]");
-      if (btn && btn.dataset && btn.dataset.stage) {
-        setStage(btn.dataset.stage);
-      }
-    });
-  }
-
-  document.querySelectorAll(".compass-node").forEach(n=>{
-    n.addEventListener("click", (e)=>{
-      const target = e.currentTarget || n;
-      if (target && target.dataset && target.dataset.stage) setStage(target.dataset.stage);
-    });
-    n.addEventListener("keydown", (e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); setStage(n.dataset.stage);} });
+    }
+    const themeTarget = e.target.closest("#themeToggle");
+    if (themeTarget) {
+      e.preventDefault();
+      const cur = document.documentElement.getAttribute("data-theme");
+      applyTheme(cur === "dark" ? "light" : "dark");
+      if (currentStage === "analyze") renderAnalyze();
+    }
   });
 
   const STAGE_ICONS = {
