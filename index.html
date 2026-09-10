@@ -329,7 +329,7 @@
 <body>
 
 <header>
-  <h1 style="display:flex;align-items:center;gap:12px;">
+  <h1 id="headerLogo" style="display:flex;align-items:center;gap:12px;cursor:pointer;" title="點擊切換分析圖表 Switch to Analysis">
     <svg width="32" height="32" viewBox="0 0 100 100" style="flex-shrink:0;">
       <circle cx="50" cy="50" r="46" fill="#0F1B2D" stroke="#F5A623" stroke-width="5"/>
       <circle cx="50" cy="50" r="36" fill="none" stroke="#1E3A5F" stroke-width="2" stroke-dasharray="4 2"/>
@@ -1178,12 +1178,30 @@
     if(stage==="report") renderReport();
     if(stage==="record") renderRecent();
   }
+  const headerLogo = document.getElementById("headerLogo");
+  if (headerLogo) {
+    headerLogo.addEventListener("click", () => {
+      setStage("analyze");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+
+  const mobileNavBar = document.getElementById("mobileNavBar");
+  if (mobileNavBar) {
+    mobileNavBar.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-stage]");
+      if (btn && btn.dataset && btn.dataset.stage) {
+        setStage(btn.dataset.stage);
+      }
+    });
+  }
+
   document.querySelectorAll(".compass-node").forEach(n=>{
-    n.addEventListener("click", ()=>setStage(n.dataset.stage));
+    n.addEventListener("click", (e)=>{
+      const target = e.currentTarget || n;
+      if (target && target.dataset && target.dataset.stage) setStage(target.dataset.stage);
+    });
     n.addEventListener("keydown", (e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); setStage(n.dataset.stage);} });
-  });
-  document.querySelectorAll(".mobile-tab-btn").forEach(n=>{
-    n.addEventListener("click", ()=>setStage(n.dataset.stage));
   });
 
   const STAGE_ICONS = {
