@@ -767,12 +767,22 @@
       return;
     }
     let maxDate = "";
+    let latestRecord = null;
     for (let i = 0; i < records.length; i++) {
-      if (records[i].date && records[i].date > maxDate) {
+      if (records[i].date && records[i].date >= maxDate) {
         maxDate = records[i].date;
+        latestRecord = records[i];
       }
     }
-    badge.innerHTML = `<span>📅 最新數據：<b>${maxDate || "未知"}</b></span> <span style="opacity:0.75; font-size:11px;">(${records.length.toLocaleString()} 筆)</span>`;
+    let cutoffStr = "";
+    if (latestRecord && latestRecord.notes) {
+      const match = latestRecord.notes.match(/迄(\d{4})時/);
+      if (match) {
+        const tDigits = match[1];
+        cutoffStr = ` (迄${tDigits.slice(0,2)}:${tDigits.slice(2)}時)`;
+      }
+    }
+    badge.innerHTML = `<span>📅 最新數據：<b>${maxDate || "未知"}${cutoffStr}</b></span> <span style="opacity:0.75; font-size:11px;">(${records.length.toLocaleString()} 筆)</span>`;
   }
 
   let records = [];
@@ -1217,18 +1227,21 @@
     }
   }
   applyTheme(localStorage.getItem(THEME_KEY) || "light");
-  if (themeBtn) {
-    themeBtn.addEventListener("click", (e)=>{
-      e.preventDefault();
-      const cur = document.documentElement.getAttribute("data-theme");
-      applyTheme(cur === "dark" ? "light" : "dark");
-      if (currentStage === "analyze") renderAnalyze();
-    });
-  }
 
   // ---------- stage nav ----------
   function setStage(stage){
     if (!stage || STAGE_ANGLES[stage] === undefined) return;
+
+    // Visual compass spin feedback on logo click
+    try {
+      const logoSvg = document.querySelector("#headerLogo svg");
+      if (logoSvg) {
+        logoSvg.style.transition = "transform 0.5s ease";
+        logoSvg.style.transform = "rotate(360deg)";
+        setTimeout(() => { logoSvg.style.transform = "none"; }, 500);
+      }
+    } catch(e){}
+
     currentStage = stage;
     try {
       const needle = document.getElementById("compassNeedle");
