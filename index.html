@@ -1170,35 +1170,46 @@
   function setStage(stage){
     if (!stage || STAGE_ANGLES[stage] === undefined) return;
     currentStage = stage;
-    const needle = document.getElementById("compassNeedle");
-    if(needle && STAGE_ANGLES[stage] !== undefined){
-      needle.style.transform = `rotate(${STAGE_ANGLES[stage]}deg)`;
-    }
+    try {
+      const needle = document.getElementById("compassNeedle");
+      if(needle && STAGE_ANGLES[stage] !== undefined){
+        needle.style.transform = `rotate(${STAGE_ANGLES[stage]}deg)`;
+      }
+    } catch(e) { console.error(e); }
+
     STAGES.forEach(s=>{
       const panelEl = document.getElementById("panel-"+s);
       if (panelEl) {
         panelEl.style.display = (s===stage) ? "block" : "none";
       }
     });
+
     document.querySelectorAll(".compass-node").forEach(n=>{
       n.classList.toggle("active", n.dataset.stage === stage);
     });
     document.querySelectorAll(".mobile-tab-btn").forEach(btn=>{
       btn.classList.toggle("active", btn.dataset.stage === stage);
     });
+
     const descEl = document.getElementById("stageDesc");
     if (descEl && STAGE_META[stage]) {
       descEl.innerHTML = "<b>"+STAGE_META[stage].title+"</b>"+STAGE_META[stage].desc;
     }
-    renderMobileTabs();
-    if(stage==="categorize") renderTable();
-    if(stage==="analyze") {
-      renderAnalyze();
-      if(!leafletMap) initMapInteractions();
-      if(leafletMap) setTimeout(() => { if (leafletMap) leafletMap.invalidateSize(); }, 150);
+
+    try { renderMobileTabs(); } catch(e) { console.error(e); }
+
+    try {
+      if(stage==="categorize") renderTable();
+      if(stage==="analyze") {
+        renderAnalyze();
+        if(!leafletMap) initMapInteractions();
+        if(leafletMap) setTimeout(() => { try { if (leafletMap) leafletMap.invalidateSize(); } catch(e){} }, 150);
+      }
+      if(stage==="report") renderReport();
+      if(stage==="record") renderRecent();
+    } catch(err) {
+      console.error("Error switching to stage " + stage, err);
     }
-    if(stage==="report") renderReport();
-    if(stage==="record") renderRecent();
   }
 
   // Expose globally on window
@@ -1894,7 +1905,7 @@
   }
 
   initMapInteractions();
-  setStage("record");
+  setStage("analyze");
   updateSyncButton();
 })();
 </script>
