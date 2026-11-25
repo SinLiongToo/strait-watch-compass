@@ -1,5 +1,13 @@
 window.mnd_records = [
   {
+    "date": "2026-11-25",
+    "type": "ship",
+    "count": 9,
+    "location": "台海周邊海域",
+    "notes": "迄0600時止，偵獲共機1架（進入東部空域1架）及共艦9艘，持續在臺海周邊活動",
+    "source": "中華民國國防部"
+  },
+  {
     "date": "2026-11-24",
     "type": "air",
     "count": 3,
